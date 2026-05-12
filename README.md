@@ -1,72 +1,83 @@
-Implementación de Alta Disponibilidad con pfSense en Proxmox VE
-Descripción
+🔐 pfSense HA en Proxmox VE
 
-Este proyecto consiste en la implementación de una solución de alta disponibilidad (HA) para firewalls utilizando pfSense en un entorno virtualizado mediante Proxmox VE. El objetivo principal es garantizar la continuidad de servicio en caso de fallo de uno de los firewalls, eliminando el punto único de fallo (SPOF) en la infraestructura de red.
+Proyecto intermodular que implementa alta disponibilidad de firewall en un entorno virtualizado, usando pfSense y Proxmox VE para garantizar continuidad, redundancia y seguridad.
 
-Se utilizan los protocolos CARP (para compartir una IP virtual), pfsync (para sincronización de conexiones) y XMLRPC (para sincronización de la configuración) para mantener el sistema redundante y funcional sin intervención manual.
+🧠 Descripción del proyecto
+Este proyecto consiste en desplegar una infraestructura de red virtualizada con dos firewalls pfSense en modo HA, simulando un entorno empresarial con failover automático. El objetivo es evitar puntos únicos de falla y mantener el tráfico seguro y disponible aun cuando un firewall deje de funcionar.
 
-Tecnologías Utilizadas
-Proxmox VE: Plataforma de virtualización.
-pfSense CE: Firewall y router de código abierto.
-Ubuntu Server 24.04: Sistema operativo para simular el gateway ISP (ISP-GW).
-Windows Server 2019/2022: Para la implementación de Active Directory (AD), DNS, y servicio de backup.
-CARP: Common Address Redundancy Protocol, para compartir IP virtual.
-pfsync: Para la sincronización de tablas de estado entre nodos pfSense.
-XMLRPC: Para la sincronización de la configuración entre los firewalls.
-Arquitectura
+🎯 Objetivo principal
+Diseñar y validar una solución de alta disponibilidad para el perímetro de red, basada en:
+- Proxmox VE para virtualización
+- pfSense CE como firewall y router
+- CARP, pfsync y XMLRPC para sincronización y failover
+- Simulación de servicios internos con Ubuntu y Windows Server
 
-El sistema está compuesto por:
+🛠️ Tecnologías utilizadas
+- Proxmox VE
+- pfSense CE
+- Ubuntu Server 24.04 (ISP-GW y servidor de servicios)
+- Windows Server 2019/2022 (Active Directory, DNS y backup)
+- CARP: IP virtual compartida para HA
+- pfsync: Sincronización de tablas de estado
+- XMLRPC: Sincronización de configuración
 
-Proxmox VE: Contiene las máquinas virtuales que simulan los dispositivos de la red.
-pfSense-01: Firewall principal (MASTER).
-pfSense-02: Firewall secundario (BACKUP).
-ISP-GW: Gateway simulado para proporcionar acceso a Internet.
-SRV-CORE (Ubuntu): Servidor que simula servicios internos de la red.
-WIN-SRV-01: Servidor Windows que provee Active Directory, DNS y copias de seguridad.
-CLIENT-01 y CLIENT-02: Clientes simulados conectados a la red LAN.
+📡 Arquitectura del entorno
+El proyecto se compone de:
+- pfSense-01: firewall principal (MASTER)
+- pfSense-02: firewall secundario (BACKUP)
+- ISP-GW: gateway simulado con Ubuntu Server
+- SRV-CORE: servidor Ubuntu para servicios internos
+- WIN-SRV-01: Windows Server con Active Directory y DNS
+- CLIENT-01 y CLIENT-02: estaciones de usuario
 
-El sistema utiliza un failover automático en caso de fallo de pfSense-01, garantizando la continuidad de servicio sin intervención manual.
+🔧 Configuración clave
+- Redundancia de firewalls con CARP
+- Sincronización de estado de conexiones con pfsync
+- Sincronización de configuración con XMLRPC
+- Redes WAN, LAN y SYNC correctamente separadas
 
-Requisitos
-Proxmox VE: Para la virtualización del entorno.
-pfSense CE: Para la configuración de los firewalls.
-Ubuntu Server: Para el gateway.
-Windows Server 2019/2022: Para la implementación de servicios AD y DNS.
-Conocimientos básicos en redes, firewalling y virtualización.
-Pasos de Implementación
-Instalación de Proxmox VE: Se crea un entorno de virtualización en Proxmox donde se van a crear las máquinas virtuales.
-Creación de las máquinas virtuales:
-pfSense-01 y pfSense-02 como firewalls.
-ISP-GW para simular la salida a Internet.
-SRV-CORE para servicios internos.
-WIN-SRV-01 para servicios de Active Directory, DNS y copias de seguridad.
-Configuración de la red: Se configuran las redes WAN, LAN y SYNC para la comunicación entre los firewalls y los servidores.
-Implementación de Alta Disponibilidad:
-Se configura CARP para la IP virtual compartida entre los dos firewalls.
-Se sincronizan las conexiones activas utilizando pfsync.
-Se sincroniza la configuración con XMLRPC.
-Pruebas de Failover: Se realiza una prueba de failover apagando el nodo pfSense-01 para verificar que pfSense-02 asume automáticamente el rol de MASTER sin pérdida de conexión.
-Configuración de servicios en Windows Server:
-Active Directory, DNS, y copias de seguridad.
-Pruebas de conectividad: Se realizan pruebas de conectividad desde los clientes para verificar que el tráfico no se ve interrumpido tras el failover.
-Capturas de Pantalla
+📌 Componentes principales
+- Proxmox VE como plataforma de virtualización
+- Dos instancias pfSense en modo HA
+- Gateway ISP simulado con Ubuntu
+- Servidor de dominio y DNS en Windows Server
+- Clientes conectados a la LAN para pruebas de conectividad
 
-Las siguientes capturas de pantalla muestran los pasos clave de la implementación:
+✅ Resultados esperados y verificados
+- Failover automático entre pfSense-01 y pfSense-02
+- Continuidad del servicio tras caída de un firewall
+- Estado y configuración sincronizados en ambos nodos
+- Acceso seguro a la red interna
+- Simulación de entorno realista con servicios de directorio y DNS
 
-CAP-40 – Creación de la máquina virtual WIN-SRV-01 en Proxmox.
-CAP-41 – Inicio de instalación de Windows Server.
-CAP-42 – Configuración inicial de Windows Server.
-CAP-43 – Configuración de IP estática en WIN-SRV-01.
-CAP-44 – Instalación del rol Active Directory.
-CAP-45 – Configuración de DNS en Windows Server.
-CAP-46 – Promoción de WIN-SRV-01 a Controlador de Dominio.
-CAP-47 – Creación de usuarios y grupos en Active Directory.
-CAP-48 – Configuración de carpeta compartida en Windows Server.
-CAP-49 – Configuración de copias de seguridad.
-CAP-50 – Unión de CLIENT-01 al dominio.
-CAP-51 – Validación de inicio de sesión con usuario del dominio.
-Conclusiones
+📋 Pasos principales del proyecto
+1. Instalación y configuración de Proxmox VE.
+2. Creación de máquinas virtuales para firewalls, gateway, servidores y clientes.
+3. Configuración de redes, interfaces y VLANs necesarias.
+4. Implementación de HA con CARP, pfsync y XMLRPC.
+5. Configuración de servicios internos en Ubuntu y Windows Server.
+6. Pruebas de failover y conectividad desde clientes.
 
-El proyecto demuestra cómo pfSense y Proxmox VE pueden ser utilizados para implementar una arquitectura de alta disponibilidad en el firewall perimetral de una red, garantizando la continuidad de servicio en caso de fallo. La combinación de CARP, pfsync y XMLRPC proporciona una solución robusta para la sincronización de estados y configuración entre los firewalls, mientras que Windows Server aporta servicios críticos como Active Directory, DNS y copias de seguridad.
+🖼️ Capturas de pantalla incluidas
+- CAP-40: Creación de WIN-SRV-01 en Proxmox
+- CAP-41: Instalación inicial de Windows Server
+- CAP-42: Configuración de Windows Server
+- CAP-43: IP estática en WIN-SRV-01
+- CAP-44: Instalación de Active Directory
+- CAP-45: Configuración de DNS
+- CAP-46: Promoción a controlador de dominio
+- CAP-47: Usuarios y grupos en Active Directory
+- CAP-48: Carpeta compartida configurada
+- CAP-49: Backup configurado
+- CAP-50: Cliente unido al dominio
+- CAP-51: Inicio de sesión validado
 
-Este proyecto es escalable y puede ser adaptado a entornos de producción con una infraestructura más robusta, proporcionando una solución de alta disponibilidad de bajo coste en entornos virtualizados.
+🚀 Conclusión
+Esta implementación demuestra cómo combinar pfSense y Proxmox VE para crear una solución de firewall redundante y resistente. Con CARP, pfsync y XMLRPC, el proyecto asegura que la red siga operativa aunque uno de los firewalls falle.
+
+📌 Autor
+Oliver Domínguez Castro
+Proyecto intermodular - Sistemas Microinformáticos y Redes
+
+⚠️ Nota
+El proyecto se realizó en un entorno de laboratorio con recursos controlados y busca replicar un escenario empresarial real para validar el diseño de alta disponibilidad y seguridad.
